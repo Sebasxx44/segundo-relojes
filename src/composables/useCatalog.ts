@@ -1,0 +1,36 @@
+import { products } from '@/data/products';
+import { ProductCardTA } from '@/components/ProductCardTA';
+import type { CatalogControls, Category, ShopStore } from '@/types';
+export const useCatalog = (shop: ShopStore): CatalogControls => {
+  let category: Category = 'Todos';
+  let onlyFavorites = false;
+  const input = document.querySelector<HTMLInputElement>('#product-search');
+  const sort = document.querySelector<HTMLSelectElement>('#sort-products');
+  const grid = document.getElementById('product-grid');
+  const render = () => {
+    const query = (input?.value ?? '').trim().toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let visible = products.filter((product) => (category === 'Todos' || product.category === category) && (!onlyFavorites || shop.favorites.has(product.id)) && `${product.name} ${product.category} ${product.subtitle}`.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(query));
+    if (sort?.value === 'low') visible = [...visible].sort((a, b) => a.price - b.price);
+    if (sort?.value === 'high') visible = [...visible].sort((a, b) => b.price - a.price);
+    if (grid) grid.innerHTML = visible.map((product) => ProductCardTA(product, shop.favorites.has(product.id))).join('');
+    const counter = document.getElementById('catalog-count');
+    if (counter) counter.textContent = `${visible.length} ${visible.length === 1 ? 'reloj' : 'relojes'} ${onlyFavorites ? 'en tus favoritos' : 'en la colección'}`;
+    const empty = document.getElementById('empty-results');
+    if (empty) empty.hidden = visible.length !== 0;
+    const clearSearch = document.getElementById('clear-search');
+    if (clearSearch) clearSearch.hidden = !input?.value;
+    const clearFavorites = document.getElementById('clear-favorites-filter');
+    if (clearFavorites) clearFavorites.hidden = !onlyFavorites;
+    document.getElementById('header-favorites')?.setAttribute('aria-pressed', String(onlyFavorites));
+    document.querySelectorAll<HTMLButtonElement>('[data-category]').forEach((button) => { const active = button.dataset.category === category; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); });
+  };
+  const clear = () => { category = 'Todos'; onlyFavorites = false; if (input) input.value = ''; if (sort) sort.value = 'selection'; render(); };
+  input?.addEventListener('input', render);
+  sort?.addEventListener('change', render);
+  document.querySelectorAll<HTMLButtonElement>('[data-category]').forEach((button) => button.addEventListener('click', () => { category = button.dataset.category as Category; render(); }));
+  document.getElementById('clear-search')?.addEventListener('click', () => { if (input) { input.value = ''; input.focus(); } render(); });
+  document.getElementById('clear-favorites-filter')?.addEventListener('click', () => { onlyFavorites = false; render(); });
+  document.getElementById('reset-catalog')?.addEventListener('click', clear);
+  render();
+  return { render, clear, showFavorites: () => { onlyFavorites = !onlyFavorites; category = 'Todos'; if (input) input.value = ''; render(); document.getElementById('coleccion')?.scrollIntoView(); } };
+};

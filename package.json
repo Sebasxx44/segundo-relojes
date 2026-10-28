@@ -1,0 +1,22 @@
+{
+  "name": "segundo-relojes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test src/data/cart.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vite": "7.3.7",
+    "@fontsource-variable/syne": "^5.2.0",
+    "@fontsource/ibm-plex-sans": "^5.2.0"
+  },
+  "overrides": {
+    "rollup": "4.59.0"
+  }
+}

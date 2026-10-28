@@ -1,0 +1,1 @@
+export const ActionHeaderTA = (eyebrow: string, title: string, description = ''): string => `<div class="section-heading"><p class="eyebrow"><span></span>${eyebrow}</p><div class="heading-row"><h2>${title}</h2>${description ? `<p>${description}</p>` : ''}</div></div>`;
